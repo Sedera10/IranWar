@@ -65,11 +65,13 @@ class ArticlesController extends Controller
     }
     
     /**
-     * Articles par catégorie
+     * Articles par catégorie (par ID)
      */
-    public function category(string $slug = ''): void
+    public function category(string $id = ''): void
     {
-        $category = $this->categoryModel->findBySlug($slug);
+        // Convertir en entier pour la recherche par ID
+        $categoryId = (int) $id;
+        $category = $this->categoryModel->findById($categoryId);
         
         if (!$category) {
             $this->redirect('articles');
@@ -79,8 +81,8 @@ class ArticlesController extends Controller
         $articles = $this->articleModel->getByCategory($category['id']);
         
         $data = [
-            'pageTitle' => $category['name'] . ' - ' . SITE_NAME,
-            'metaDescription' => 'Articles de la catégorie ' . $category['name'],
+            'pageTitle' => $category['libelle'] . ' - ' . SITE_NAME,
+            'metaDescription' => 'Articles de la catégorie ' . $category['libelle'],
             'category' => $category,
             'articles' => $articles,
             'categories' => $this->categoryModel->getActive()

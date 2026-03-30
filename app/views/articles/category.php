@@ -1,5 +1,5 @@
 <div class="category-page">
-    <h1>Catégorie: <?= htmlspecialchars($category['name']) ?></h1>
+    <h1>Catégorie: <?= htmlspecialchars($category['libelle']) ?></h1>
     
     <?php if (!empty($category['description'])): ?>
         <p class="category-description"><?= htmlspecialchars($category['description']) ?></p>
@@ -18,7 +18,7 @@
                         
                         <div class="article-body">
                             <h2>
-                                <a href="<?= SITE_URL ?>/articles/show/<?= htmlspecialchars($article['slug']) ?>">
+                                <a href="<?= SITE_URL ?>/articles/show/<?= $article['id'] ?>">
                                     <?= htmlspecialchars($article['title']) ?>
                                 </a>
                             </h2>
@@ -42,8 +42,8 @@
                 <ul class="categories-widget">
                     <?php foreach ($categories as $cat): ?>
                         <li class="<?= $cat['id'] === $category['id'] ? 'active' : '' ?>">
-                            <a href="<?= SITE_URL ?>/articles/category/<?= htmlspecialchars($cat['slug']) ?>">
-                                <?= htmlspecialchars($cat['name']) ?>
+                            <a href="<?= SITE_URL ?>/articles/category/<?= $cat['id'] ?>">
+                                <?= htmlspecialchars($cat['libelle']) ?>
                             </a>
                         </li>
                     <?php endforeach; ?>
