@@ -84,7 +84,7 @@ class AdminController extends Controller
         
         $this->view('admin/articles-list', [
             'pageTitle' => 'Gestion des articles',
-            'articles' => $articleModel->all()
+            'articles' => $articleModel->getAllWithDetails()
         ]);
     }
     
@@ -94,44 +94,67 @@ class AdminController extends Controller
     public function createArticle(): void
     {
         $categoryModel = $this->model('Category');
+        $statutModel = $this->model('Statut');
         $error = '';
         $success = '';
         
         if ($this->isPost()) {
             $articleModel = $this->model('Article');
+            $articleStatutModel = $this->model('ArticleStatut');
             
             $title = $this->post('title');
-            $content = $_POST['content'] ?? ''; // TinyMCE content (HTML)
+            $content = $_POST['content'] ?? '';
             $categoryId = (int) $this->post('category_id');
-            $status = $this->post('status') ?? 'draft';
-            $keywords = $this->post('keywords');
+            $statusId = (int) $this->post('status');
+            $publishedAt = $this->post('published_at');
             
             if ($title && $content) {
-                $slug = $articleModel->generateSlug($title);
-                
+                // Préparer les données de l'article
                 $data = [
                     'title' => $title,
-                    'slug' => $slug,
                     'content' => $content,
-                    'category_id' => $categoryId,
-                    'status' => $status,
-                    'keywords' => $keywords,
+                    'category_id' => $categoryId ?: null,
                     'author_id' => $_SESSION['user_id'],
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
                     'views' => 0
                 ];
                 
-                // Gestion de l'image
-                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                    $imagePath = $this->uploadImage($_FILES['image']);
-                    if ($imagePath) {
-                        $data['image'] = $imagePath;
-                    }
+                // Gestion de la date de publication
+                $statut = $statutModel->findById($statusId);
+                if ($statut && strtolower($statut['libelle']) === 'publié') {
+                    // Utiliser la date sélectionnée ou la date actuelle
+                    $data['published_at'] = !empty($publishedAt) ? date('Y-m-d H:i:s', strtotime($publishedAt)) : date('Y-m-d H:i:s');
                 }
                 
-                $articleModel->create($data);
-                $success = 'Article créé avec succès!';
+                // Créer l'article et récupérer l'ID
+                $articleId = $articleModel->createAndGetId($data);
+                
+                if ($articleId) {
+                    // Lier l'article au statut via articles_statuts
+                    if ($statusId > 0) {
+                        $articleStatutModel->create([
+                            'id_1' => $statusId,
+                            'id_2' => $articleId,
+                            'date_' => date('Y-m-d H:i:s')
+                        ]);
+                    }
+                    
+                    // Gérer l'image (table media)
+                    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                        $imagePath = $this->uploadImage($_FILES['image']);
+                        if ($imagePath) {
+                            $mediaModel = $this->model('Media');
+                            $mediaModel->create([
+                                'url' => $imagePath,
+                                'alt_text' => $title,
+                                'article_id' => $articleId
+                            ]);
+                        }
+                    }
+                    
+                    $success = 'Article créé avec succès!';
+                } else {
+                    $error = 'Erreur lors de la création de l\'article.';
+                }
             } else {
                 $error = 'Le titre et le contenu sont requis.';
             }
@@ -140,6 +163,7 @@ class AdminController extends Controller
         $this->view('admin/article-create', [
             'pageTitle' => 'Créer un article',
             'categories' => $categoryModel->all(),
+            'statuts' => $statutModel->all(),
             'error' => $error,
             'success' => $success
         ]);
@@ -152,13 +176,23 @@ class AdminController extends Controller
     {
         $articleModel = $this->model('Article');
         $categoryModel = $this->model('Category');
+        $statutModel = $this->model('Statut');
+        $articleStatutModel = $this->model('ArticleStatut');
+        $mediaModel = $this->model('Media');
         
-        $article = $articleModel->find($id);
+        $article = $articleModel->findById($id);
         
         if (!$article) {
             $this->redirect('admin/articles');
             return;
         }
+        
+        // Récupérer le statut actuel de l'article
+        $currentStatus = $articleStatutModel->getByArticle($id);
+        $article['status_id'] = $currentStatus ? $currentStatus['id_1'] : null;
+        
+        // Récupérer l'image actuelle
+        $currentImage = $mediaModel->getMainByArticle($id);
         
         $error = '';
         $success = '';
@@ -167,30 +201,52 @@ class AdminController extends Controller
             $title = $this->post('title');
             $content = $_POST['content'] ?? '';
             $categoryId = (int) $this->post('category_id');
-            $status = $this->post('status') ?? 'draft';
-            $keywords = $this->post('keywords');
+            $statusId = (int) $this->post('status');
+            $publishedAt = $this->post('published_at');
             
             if ($title && $content) {
                 $data = [
                     'title' => $title,
                     'content' => $content,
-                    'category_id' => $categoryId,
-                    'status' => $status,
-                    'keywords' => $keywords,
+                    'category_id' => $categoryId ?: null,
                     'updated_at' => date('Y-m-d H:i:s')
                 ];
+                
+                // Gérer published_at selon le statut et la date sélectionnée
+                $statut = $statutModel->findById($statusId);
+                if ($statut && strtolower($statut['libelle']) === 'publié') {
+                    $data['published_at'] = !empty($publishedAt) ? date('Y-m-d H:i:s', strtotime($publishedAt)) : date('Y-m-d H:i:s');
+                } else {
+                    $data['published_at'] = null;
+                }
+                
+                // Mettre à jour l'article
+                $articleModel->update($id, $data);
+                
+                // Mettre à jour le statut dans articles_statuts
+                if ($statusId > 0) {
+                    $articleStatutModel->updateStatus($id, $statusId);
+                }
                 
                 // Gestion de l'image
                 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                     $imagePath = $this->uploadImage($_FILES['image']);
                     if ($imagePath) {
-                        $data['image'] = $imagePath;
+                        // Supprimer l'ancienne image si existe
+                        $mediaModel->deleteByArticle($id);
+                        // Ajouter la nouvelle
+                        $mediaModel->create([
+                            'url' => $imagePath,
+                            'alt_text' => $title,
+                            'article_id' => $id
+                        ]);
                     }
                 }
                 
-                $articleModel->update($id, $data);
                 $success = 'Article mis à jour!';
-                $article = $articleModel->find($id);
+                $article = $articleModel->findById($id);
+                $article['status_id'] = $statusId;
+                $currentImage = $mediaModel->getMainByArticle($id);
             } else {
                 $error = 'Le titre et le contenu sont requis.';
             }
@@ -199,7 +255,9 @@ class AdminController extends Controller
         $this->view('admin/article-edit', [
             'pageTitle' => 'Modifier l\'article',
             'article' => $article,
+            'image' => $currentImage,
             'categories' => $categoryModel->all(),
+            'statuts' => $statutModel->all(),
             'error' => $error,
             'success' => $success
         ]);

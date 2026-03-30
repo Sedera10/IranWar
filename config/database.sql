@@ -85,10 +85,10 @@ INSERT INTO users (name, username, email, password) VALUES
 -- Catégories par défaut
 -- ====================================
 INSERT INTO categories (libelle, description) VALUES 
-('Actualités', 'Dernières nouvelles et développements sur le conflit'),
-('Analyses', 'Analyses approfondies des événements et de la situation'),
-('Reportages', 'Reportages de terrain et témoignages'),
-('Géopolitique', 'Contexte géopolitique et relations internationales'),
+('Actualites', 'Dernieres nouvelles et developpements sur le conflit'),
+('Analyses', 'Analyses approfondies des evenements et de la situation'),
+('Reportages', 'Reportages de terrain et temoignages'),
+('Geopolitique', 'Contexte geopolitique et relations internationales'),
 ('Humanitaire', 'Situation humanitaire et aide aux populations');
 
 -- ====================================

@@ -41,6 +41,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Titre</th>
+                            <th>Catégorie</th>
                             <th>Statut</th>
                             <th>Date</th>
                             <th>Vues</th>
@@ -52,15 +53,20 @@
                             <tr>
                                 <td><?= $article['id'] ?></td>
                                 <td><?= htmlspecialchars($article['title']) ?></td>
+                                <td><?= htmlspecialchars($article['category_name'] ?? '-') ?></td>
                                 <td>
-                                    <span class="status-badge status-<?= $article['status'] ?>">
-                                        <?= $article['status'] === 'published' ? 'Publié' : 'Brouillon' ?>
+                                    <?php 
+                                    $statusName = $article['status_name'] ?? ($article['published_at'] ? 'Publié' : 'Brouillon');
+                                    $statusClass = strtolower(str_replace(['é', 'è'], 'e', $statusName));
+                                    ?>
+                                    <span class="status-badge status-<?= $statusClass ?>">
+                                        <?= htmlspecialchars($statusName) ?>
                                     </span>
                                 </td>
                                 <td><?= date('d/m/Y H:i', strtotime($article['created_at'])) ?></td>
                                 <td><?= $article['views'] ?? 0 ?></td>
                                 <td class="actions">
-                                    <a href="<?= SITE_URL ?>/articles/show/<?= $article['slug'] ?>" target="_blank" class="btn btn-small btn-view">Voir</a>
+                                    <a href="<?= SITE_URL ?>/articles/show/<?= $article['id'] ?>" target="_blank" class="btn btn-small btn-view">Voir</a>
                                     <a href="<?= SITE_URL ?>/admin/editArticle/<?= $article['id'] ?>" class="btn btn-small btn-edit">Modifier</a>
                                     <a href="<?= SITE_URL ?>/admin/deleteArticle/<?= $article['id'] ?>" class="btn btn-small btn-delete" onclick="return confirm('Supprimer cet article ?')">Supprimer</a>
                                 </td>

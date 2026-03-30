@@ -33,7 +33,7 @@
     <link rel="apple-touch-icon" href="<?= SITE_URL ?>/public/images/logo.png">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="<?= SITE_URL ?>/public/css/style.css">
+    <link rel="stylesheet" href="<?= SITE_URL ?>/public/css/style.css?v=<?= time() ?>">
 </head>
 <body>
     <!-- Header -->

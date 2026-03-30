@@ -19,7 +19,7 @@ class ArticlesController extends Controller
     public function index(): void
     {
         $page = (int) ($this->get('page') ?? 1);
-        $pagination = $this->articleModel->paginate($page, 10, 'created_at DESC');
+        $pagination = $this->articleModel->paginatePublished($page, 10);
         
         $data = [
             'pageTitle' => 'Actualités - ' . SITE_NAME,
@@ -35,14 +35,14 @@ class ArticlesController extends Controller
     /**
      * Afficher un article
      */
-    public function show(string $slug = ''): void
+    public function show(string $id = ''): void
     {
-        if (empty($slug)) {
+        if (empty($id)) {
             $this->redirect('articles');
             return;
         }
         
-        $article = $this->articleModel->findBySlug($slug);
+        $article = $this->articleModel->findById((int) $id);
         
         if (!$article) {
             http_response_code(404);
@@ -53,11 +53,15 @@ class ArticlesController extends Controller
         // Incrémenter les vues
         $this->articleModel->incrementViews($article['id']);
         
+        // Récupérer l'image depuis la table media
+        $mediaModel = $this->model('Media');
+        $image = $mediaModel->getMainByArticle($article['id']);
+        
         $data = [
             'pageTitle' => $article['title'] . ' - ' . SITE_NAME,
             'metaDescription' => substr(strip_tags($article['content']), 0, 160),
-            'metaKeywords' => $article['keywords'] ?? '',
             'article' => $article,
+            'image' => $image,
             'categories' => $this->categoryModel->getActive()
         ];
         

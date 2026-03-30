@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="<?= SITE_URL ?>/public/css/admin.css">
     <link rel="icon" type="image/png" href="<?= SITE_URL ?>/public/images/logo.png">
     <!-- TinyMCE CDN -->
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/auubzeaa3lmb3ainmfq1goiel3mrkh4wiw1sdmqma0vty65n/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
         tinymce.init({
             selector: '#content',
@@ -33,7 +33,7 @@
     <!-- Sidebar -->
     <aside class="admin-sidebar">
         <div class="sidebar-header">
-            <img src="<?= SITE_URL ?>/public/images/logo.webp" alt="Logo" class="sidebar-logo">
+            <img src="<?= SITE_URL ?>/public/images/logo.png" alt="Logo" class="sidebar-logo">
             <h2><?= SITE_NAME ?></h2>
             <span>Administration</span>
         </div>
@@ -69,7 +69,7 @@
                 <div class="form-row">
                     <div class="form-group form-group-large">
                         <label for="title">Titre de l'article *</label>
-                        <input type="text" id="title" name="title" value="<?= htmlspecialchars($article['title']) ?>" required>
+                        <input type="text" id="title" name="title" value="<?= htmlspecialchars($article['title'] ?? '') ?>" required>
                     </div>
                 </div>
                 
@@ -80,7 +80,7 @@
                             <option value="">-- Sélectionner --</option>
                             <?php foreach ($categories as $category): ?>
                                 <option value="<?= $category['id'] ?>" <?= ($article['category_id'] ?? '') == $category['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($category['name']) ?>
+                                    <?= htmlspecialchars($category['libelle'] ?? '') ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -89,31 +89,38 @@
                     <div class="form-group">
                         <label for="status">Statut</label>
                         <select id="status" name="status">
-                            <option value="draft" <?= $article['status'] === 'draft' ? 'selected' : '' ?>>Brouillon</option>
-                            <option value="published" <?= $article['status'] === 'published' ? 'selected' : '' ?>>Publié</option>
+                            <option value="">-- Sélectionner --</option>
+                            <?php foreach ($statuts as $status): ?>
+                                <option value="<?= $status['id'] ?>" <?= ($article['status_id'] ?? '') == $status['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($status['libelle'] ?? '') ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="image">Image de couverture</label>
-                    <?php if (!empty($article['image'])): ?>
-                        <div class="current-image">
-                            <img src="<?= SITE_URL ?>/public/<?= htmlspecialchars($article['image']) ?>" alt="Image actuelle" style="max-width: 200px;">
-                            <p>Image actuelle</p>
-                        </div>
-                    <?php endif; ?>
-                    <input type="file" id="image" name="image" accept="image/*">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="published_at">Date de publication</label>
+                        <input type="datetime-local" id="published_at" name="published_at" 
+                               value="<?= !empty($article['published_at']) ? date('Y-m-d\TH:i', strtotime($article['published_at'])) : date('Y-m-d\TH:i') ?>">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="image">Image de couverture</label>
+                        <?php if (!empty($image)): ?>
+                            <div class="current-image">
+                                <img src="<?= SITE_URL ?>/public/<?= htmlspecialchars($image['url']) ?>" alt="Image actuelle" style="max-width: 200px;">
+                                <p>Image actuelle</p>
+                            </div>
+                        <?php endif; ?>
+                        <input type="file" id="image" name="image" accept="image/*">
+                    </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="content">Contenu * (TinyMCE)</label>
-                    <textarea id="content" name="content" rows="15"><?= htmlspecialchars($article['content']) ?></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="keywords">Mots-clés SEO (séparés par des virgules)</label>
-                    <input type="text" id="keywords" name="keywords" value="<?= htmlspecialchars($article['keywords'] ?? '') ?>">
+                    <textarea id="content" name="content" rows="15"><?= htmlspecialchars($article['content'] ?? '') ?></textarea>
                 </div>
                 
                 <div class="form-actions">

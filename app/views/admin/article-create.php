@@ -79,7 +79,7 @@
                         <select id="category_id" name="category_id">
                             <option value="">-- Sélectionner --</option>
                             <?php foreach ($categories as $category): ?>
-                                <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+                                <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['libelle'] ?? '') ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -87,25 +87,34 @@
                     <div class="form-group">
                         <label for="status">Statut</label>
                         <select id="status" name="status">
-                            <option value="draft">Brouillon</option>
-                            <option value="published">Publié</option>
+                            <option value="">-- Sélectionner --</option>
+                            <?php foreach ($statuts as $status): ?>
+                                <?php if (strtolower($status['libelle'] ?? '') !== 'archivé'): ?>
+                                    <option value="<?= $status['id'] ?>">
+                                        <?= htmlspecialchars($status['libelle'] ?? '') ?>
+                                    </option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="image">Image de couverture</label>
-                    <input type="file" id="image" name="image" accept="image/*">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="published_at">Date de publication</label>
+                        <input type="datetime-local" id="published_at" name="published_at" value="<?= date('Y-m-d\TH:i') ?>">
+                        <small>Laissez vide pour garder en brouillon</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="image">Image de couverture</label>
+                        <input type="file" id="image" name="image" accept="image/*">
+                    </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="content">Contenu * (TinyMCE)</label>
                     <textarea id="content" name="content" rows="15"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="keywords">Mots-clés SEO (séparés par des virgules)</label>
-                    <input type="text" id="keywords" name="keywords" placeholder="iran, guerre, actualités">
                 </div>
                 
                 <div class="form-actions">
