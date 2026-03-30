@@ -1,0 +1,114 @@
+<?php
+/**
+ * ArticlesController - Gestion des articles côté public
+ */
+class ArticlesController extends Controller
+{
+    private Article $articleModel;
+    private Category $categoryModel;
+    
+    public function __construct()
+    {
+        $this->articleModel = $this->model('Article');
+        $this->categoryModel = $this->model('Category');
+    }
+    
+    /**
+     * Liste des articles
+     */
+    public function index(): void
+    {
+        $page = (int) ($this->get('page') ?? 1);
+        $pagination = $this->articleModel->paginate($page, 10, 'created_at DESC');
+        
+        $data = [
+            'pageTitle' => 'Actualités - ' . SITE_NAME,
+            'metaDescription' => 'Toutes les actualités sur la guerre en Iran',
+            'articles' => $pagination['data'],
+            'pagination' => $pagination,
+            'categories' => $this->categoryModel->getActive()
+        ];
+        
+        $this->render('articles/index', $data);
+    }
+    
+    /**
+     * Afficher un article
+     */
+    public function show(string $slug = ''): void
+    {
+        if (empty($slug)) {
+            $this->redirect('articles');
+            return;
+        }
+        
+        $article = $this->articleModel->findBySlug($slug);
+        
+        if (!$article) {
+            http_response_code(404);
+            $this->render('layouts/404', ['pageTitle' => 'Article non trouvé']);
+            return;
+        }
+        
+        // Incrémenter les vues
+        $this->articleModel->incrementViews($article['id']);
+        
+        $data = [
+            'pageTitle' => $article['title'] . ' - ' . SITE_NAME,
+            'metaDescription' => substr(strip_tags($article['content']), 0, 160),
+            'metaKeywords' => $article['keywords'] ?? '',
+            'article' => $article,
+            'categories' => $this->categoryModel->getActive()
+        ];
+        
+        $this->render('articles/show', $data);
+    }
+    
+    /**
+     * Articles par catégorie
+     */
+    public function category(string $slug = ''): void
+    {
+        $category = $this->categoryModel->findBySlug($slug);
+        
+        if (!$category) {
+            $this->redirect('articles');
+            return;
+        }
+        
+        $articles = $this->articleModel->getByCategory($category['id']);
+        
+        $data = [
+            'pageTitle' => $category['name'] . ' - ' . SITE_NAME,
+            'metaDescription' => 'Articles de la catégorie ' . $category['name'],
+            'category' => $category,
+            'articles' => $articles,
+            'categories' => $this->categoryModel->getActive()
+        ];
+        
+        $this->render('articles/category', $data);
+    }
+    
+    /**
+     * Recherche d'articles
+     */
+    public function search(): void
+    {
+        $keyword = $this->get('q') ?? '';
+        $articles = [];
+        
+        if (!empty($keyword)) {
+            $articles = $this->articleModel->search($keyword);
+        }
+        
+        $data = [
+            'pageTitle' => 'Recherche: ' . $keyword . ' - ' . SITE_NAME,
+            'metaDescription' => 'Résultats de recherche pour ' . $keyword,
+            'keyword' => $keyword,
+            'articles' => $articles,
+            'categories' => $this->categoryModel->getActive()
+        ];
+        
+        $this->render('articles/search', $data);
+    }
+}

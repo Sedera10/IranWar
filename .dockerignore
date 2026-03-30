@@ -1,0 +1,10 @@
+# Fichiers à ignorer par Docker
+.git
+.gitignore
+README.md
+*.md
+.env.example
+.vscode
+.idea
+node_modules
+*.log
