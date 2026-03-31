@@ -116,13 +116,8 @@ RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
 # ====================================
 # ETAPE 3: CHARGEMENT ASYNCHRONE
 # ====================================
-# Preconnect/Prefetch headers pour ressources externes
+# Keep-Alive pour connexions persistantes
 <IfModule mod_headers.c>
-    # Resource Hints
-    Header set Link "</public/css/style.min.css>; rel=preload; as=style"
-    Header append Link "</public/js/main.js>; rel=preload; as=script"
-    
-    # Keep-Alive pour connexions persistantes
     Header set Connection keep-alive
 </IfModule>
 
@@ -207,8 +202,8 @@ FileETag None
     Header set X-Frame-Options "SAMEORIGIN"
     Header set X-XSS-Protection "1; mode=block"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
-    # Content Security Policy (ajuster selon besoins)
-    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tiny.cloud; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://cdn.tiny.cloud"
+    # Content Security Policy - inclut TinyMCE CDN
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tiny.cloud; style-src 'self' 'unsafe-inline' https://cdn.tiny.cloud; img-src 'self' data: https: blob:; font-src 'self' https://cdn.tiny.cloud; connect-src 'self' https://cdn.tiny.cloud; frame-src 'self' blob:"
 </IfModule>
 
 # Empêcher le listage des répertoires

@@ -11,7 +11,8 @@
         
         <h2>Notre équipe</h2>
         <p>
-            Notre équipe est composée de journalistes, d'analystes et d'experts régionaux 
+            <h3><strong>ETU003343 & ETU003343</strong></h3>
+            Notre équipe est composée seulement 
             qui travaillent quotidiennement pour vous apporter les dernières nouvelles 
             et analyses sur la situation en Iran.
         </p>

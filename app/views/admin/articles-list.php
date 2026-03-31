@@ -11,7 +11,7 @@
     <!-- Sidebar -->
     <aside class="admin-sidebar">
         <div class="sidebar-header">
-            <img src="<?= SITE_URL ?>/public/images/logo.webp" alt="Logo" class="sidebar-logo">
+            <img src="<?= SITE_URL ?>/public/images/logo.png" alt="Logo IranWar" class="sidebar-logo" loading="lazy">
             <h2><?= SITE_NAME ?></h2>
             <span>Administration</span>
         </div>
