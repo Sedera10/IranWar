@@ -79,7 +79,7 @@ CREATE TABLE articles_statuts(
 -- Email: admin@iranwar.info
 -- Mot de passe: admin123
 INSERT INTO users (name, username, email, password) VALUES 
-('Administrateur Sedera', 'Sedou', 'admin@iranwar.info', '$2y$10$xLxAo0cffy8KGLFmJXHxKetTGr3dijKXgbmYlOH7XzPzKjLfjhGtG');
+('Administrateur Sedera', 'Sedou', 'admin@iranwar.info', '$2y$10$VWjsf9t5HOjgUltapfAXQOu3jT08qU4eXz8zHsZfvqpBb7vf4kmy6');
 
 -- ====================================
 -- Catégories par défaut
