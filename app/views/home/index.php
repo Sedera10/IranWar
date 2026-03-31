@@ -19,7 +19,9 @@
                             <div class="article-thumbnail">
                                 <a href="<?= SITE_URL ?>/articles/show/<?= $article['id'] ?>">
                                     <img src="<?= SITE_URL ?>/public/<?= htmlspecialchars($article['image_url']) ?>" 
-                                         alt="<?= htmlspecialchars($article['image_alt'] ?? $article['title']) ?>">
+                                         alt="<?= htmlspecialchars($article['image_alt'] ?? $article['title']) ?>"
+                                         loading="lazy"
+                                         decoding="async">
                                 </a>
                             </div>
                         <?php endif; ?>

@@ -449,18 +449,27 @@ img {
     border-bottom: none;
 }
 
-/* Article Single */
-.article-single {
-    background: var(--white);
-    padding: 40px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    max-width: 900px;
+/* Article Page Layout - avec sidebar */
+.article-page {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 40px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
+/* Article Single */
+.article-single {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
 .article-header {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--primary-color);
 }
 
 .article-category-badge {
@@ -471,43 +480,26 @@ img {
     border-radius: 20px;
     font-size: 0.85rem;
     margin-bottom: 15px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.article-category-badge:hover {
+    background: var(--primary-dark);
+    color: var(--white);
 }
 
 .article-header h1 {
     font-size: 2rem;
-    margin-bottom: 0;
+    margin-bottom: 15px;
     line-height: 1.3;
-}
-
-.article-featured-image {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.article-featured-image img {
-    max-width: 100%;
-    max-height: 500px;
-    width: auto;
-    height: auto;
-    border-radius: var(--radius);
-    object-fit: contain;
-}
-
-/* Sur desktop, limiter encore plus la taille */
-@media (min-width: 768px) {
-    .article-featured-image img {
-        max-width: 70%;
-        max-height: 450px;
-    }
+    color: var(--text-color);
 }
 
 .article-single .article-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
-    padding: 15px 0;
-    margin-bottom: 25px;
-    border-bottom: 1px solid var(--border-color);
+    gap: 20px;
     color: var(--text-light);
     font-size: 0.9rem;
 }
@@ -516,6 +508,19 @@ img {
     display: flex;
     align-items: center;
     gap: 5px;
+}
+
+.article-featured-image {
+    margin-bottom: 30px;
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.article-featured-image img {
+    width: 100%;
+    max-height: 450px;
+    object-fit: cover;
+    border-radius: var(--radius);
 }
 
 .article-content {
@@ -541,8 +546,8 @@ img {
 
 .article-footer {
     margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color);
+    padding-top: 25px;
+    border-top: 2px solid var(--border-color);
 }
 
 .article-tags {
@@ -560,15 +565,110 @@ img {
 
 .share-buttons {
     display: flex;
-    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.share-buttons > span {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.share-buttons .share-btn {
+    padding: 8px 16px;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.share-buttons .share-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.share-buttons .facebook {
+    background: #1877f2;
+    color: white;
+}
+
+.share-buttons .twitter {
+    background: #1da1f2;
+    color: white;
+}
+
+.share-buttons .whatsapp {
+    background: #25d366;
+    color: white;
+}
+
+/* Article Sidebar */
+.article-sidebar {
+    position: sticky;
+    top: 100px;
+}
+
+.article-sidebar .widget {
+    background: var(--white);
+    padding: 20px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
     margin-bottom: 20px;
 }
 
-.share-buttons a {
-    padding: 8px 15px;
-    background: var(--secondary-color);
-    color: var(--white);
-    border-radius: var(--radius);
+.article-sidebar .widget h3 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.recent-articles-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recent-articles-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.recent-articles-list li:last-child {
+    border-bottom: none;
+}
+
+.recent-articles-list li a {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    line-height: 1.4;
+}
+
+.recent-articles-list li small {
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+.article-sidebar .back-link {
+    margin-top: 20px;
+}
+
+.article-sidebar .back-link .btn {
+    width: 100%;
+    text-align: center;
+}
+
+/* Responsive pour article-page */
+@media (max-width: 992px) {
+    .article-page {
+        grid-template-columns: 1fr;
+    }
+    
+    .article-sidebar {
+        position: static;
+    }
 }
 
 /* Pagination */

@@ -26,31 +26,66 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
 
-# Optimisations SEO et Performance
+# ====================================
+# ETAPE 1: OPTIMISATION IMAGES
+# ====================================
+# Types MIME pour images modernes
+<IfModule mod_mime.c>
+    AddType image/webp .webp
+    AddType image/avif .avif
+    AddType image/svg+xml .svg
+</IfModule>
+
+# ====================================
+# ETAPE 2: OPTIMISATION CSS
+# ====================================
+# Types MIME CSS/JS
+<IfModule mod_mime.c>
+    AddType text/css .css
+    AddType application/javascript .js
+</IfModule>
+
+# Compression GZIP (CSS, JS, HTML)
+<IfModule mod_deflate.c>
+    # HTML
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml
+    # CSS
+    AddOutputFilterByType DEFLATE text/css
+    # JavaScript
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+    # JSON
+    AddOutputFilterByType DEFLATE application/json
+    # SVG
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ====================================
+# CACHE NAVIGATEUR
+# ====================================
 <IfModule mod_headers.c>
-    # Cache pour les ressources statiques
-    <FilesMatch "\.(ico|pdf|jpg|jpeg|png|gif|js|css|svg|woff|woff2)$">
-        Header set Cache-Control "max-age=31536000, public"
+    # Cache long pour ressources statiques (1 an)
+    <FilesMatch "\.(ico|pdf|jpg|jpeg|png|gif|webp|avif|svg|woff|woff2)$">
+        Header set Cache-Control "max-age=31536000, public, immutable"
     </FilesMatch>
     
-    # Headers de sécurité
+    # Cache pour CSS/JS minifiés (1 an)
+    <FilesMatch "\.(min\.css|min\.js)$">
+        Header set Cache-Control "max-age=31536000, public, immutable"
+    </FilesMatch>
+    
+    # Cache court pour CSS/JS non-minifiés (1 semaine)
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "max-age=604800, public"
+    </FilesMatch>
+</IfModule>
+
+# ====================================
+# SECURITE
+# ====================================
+<IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "SAMEORIGIN"
     Header set X-XSS-Protection "1; mode=block"
-</IfModule>
-
-# Compression GZIP
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
-    AddOutputFilterByType DEFLATE application/javascript application/x-javascript
-    AddOutputFilterByType DEFLATE application/json
-</IfModule>
-
-# Types MIME
-<IfModule mod_mime.c>
-    AddType application/javascript .js
-    AddType text/css .css
-    AddType image/svg+xml .svg
 </IfModule>
 
 # Empêcher le listage des répertoires
@@ -58,3 +93,6 @@ Options -Indexes
 
 # Définir le charset par défaut
 AddDefaultCharset UTF-8
+
+# Redirection erreur
+ErrorDocument 404 /404.php

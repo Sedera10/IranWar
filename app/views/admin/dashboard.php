@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'Dashboard' ?> - Administration</title>
-    <link rel="stylesheet" href="<?= SITE_URL ?>/public/css/admin.css">
+    <link rel="stylesheet" href="<?= SITE_URL ?>/public/css/admin.min.css">
     <link rel="icon" type="image/png" href="<?= SITE_URL ?>/public/images/logo.png">
 </head>
 <body class="admin-page">

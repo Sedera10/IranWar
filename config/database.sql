@@ -95,6 +95,7 @@ INSERT INTO categories (libelle, description) VALUES
 -- Statuts par défaut
 -- ====================================
 INSERT INTO statuts (libelle, description) VALUES 
-('Brouillon', 'Article en cours de rédaction'),
-('Publié', 'Article visible sur le site'),
-('Archivé', 'Article retiré du site mais conservé');
+('Draft', 'Article en cours de redaction'),
+('Published', 'Article visible sur le site'),
+('Archived', 'Article retire du site mais conserve');
+

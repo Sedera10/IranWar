@@ -120,7 +120,7 @@ class AdminController extends Controller
                 
                 // Gestion de la date de publication
                 $statut = $statutModel->findById($statusId);
-                if ($statut && strtolower($statut['libelle']) === 'publié') {
+                if ($statut && strtolower($statut['libelle']) === 'published') {
                     // Utiliser la date sélectionnée ou la date actuelle
                     $data['published_at'] = !empty($publishedAt) ? date('Y-m-d H:i:s', strtotime($publishedAt)) : date('Y-m-d H:i:s');
                 }
@@ -214,7 +214,7 @@ class AdminController extends Controller
                 
                 // Gérer published_at selon le statut et la date sélectionnée
                 $statut = $statutModel->findById($statusId);
-                if ($statut && strtolower($statut['libelle']) === 'publié') {
+                if ($statut && strtolower($statut['libelle']) === 'published') {
                     $data['published_at'] = !empty($publishedAt) ? date('Y-m-d H:i:s', strtotime($publishedAt)) : date('Y-m-d H:i:s');
                 } else {
                     $data['published_at'] = null;
@@ -276,7 +276,9 @@ class AdminController extends Controller
     }
     
     /**
-     * Upload d'image
+     * Upload d'image avec optimisation
+     * - Redimensionnement automatique
+     * - Conversion en WebP
      */
     private function uploadImage(array $file): ?string
     {
@@ -290,13 +292,77 @@ class AdminController extends Controller
             return null;
         }
         
-        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filename = uniqid() . '_' . time() . '.' . $extension;
+        // Dimensions maximales pour les images articles
+        $maxWidth = 1200;
+        $maxHeight = 800;
+        
+        // Créer l'image source
+        $sourceImage = null;
+        switch ($file['type']) {
+            case 'image/jpeg':
+                $sourceImage = imagecreatefromjpeg($file['tmp_name']);
+                break;
+            case 'image/png':
+                $sourceImage = imagecreatefrompng($file['tmp_name']);
+                break;
+            case 'image/gif':
+                $sourceImage = imagecreatefromgif($file['tmp_name']);
+                break;
+            case 'image/webp':
+                $sourceImage = imagecreatefromwebp($file['tmp_name']);
+                break;
+        }
+        
+        if (!$sourceImage) {
+            // Fallback: upload sans traitement
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = uniqid() . '_' . time() . '.' . $extension;
+            $destination = UPLOADS_PATH . $filename;
+            
+            if (move_uploaded_file($file['tmp_name'], $destination)) {
+                return 'uploads/' . $filename;
+            }
+            return null;
+        }
+        
+        // Obtenir les dimensions originales
+        $origWidth = imagesx($sourceImage);
+        $origHeight = imagesy($sourceImage);
+        
+        // Calculer les nouvelles dimensions (proportionnelles)
+        $ratio = min($maxWidth / $origWidth, $maxHeight / $origHeight, 1);
+        $newWidth = (int) ($origWidth * $ratio);
+        $newHeight = (int) ($origHeight * $ratio);
+        
+        // Créer l'image redimensionnée
+        $resizedImage = imagecreatetruecolor($newWidth, $newHeight);
+        
+        // Préserver la transparence pour PNG
+        imagealphablending($resizedImage, false);
+        imagesavealpha($resizedImage, true);
+        
+        // Redimensionner
+        imagecopyresampled(
+            $resizedImage, $sourceImage,
+            0, 0, 0, 0,
+            $newWidth, $newHeight,
+            $origWidth, $origHeight
+        );
+        
+        // Nom du fichier en WebP
+        $filename = uniqid() . '_' . time() . '.webp';
         $destination = UPLOADS_PATH . $filename;
         
-        if (move_uploaded_file($file['tmp_name'], $destination)) {
+        // Sauvegarder en WebP (qualité 85%)
+        if (imagewebp($resizedImage, $destination, 85)) {
+            imagedestroy($sourceImage);
+            imagedestroy($resizedImage);
             return 'uploads/' . $filename;
         }
+        
+        // Libérer la mémoire
+        imagedestroy($sourceImage);
+        imagedestroy($resizedImage);
         
         return null;
     }

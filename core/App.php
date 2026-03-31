@@ -67,10 +67,18 @@ class App
     protected function error404(string $message = ''): void
     {
         http_response_code(404);
-        if (DEBUG_MODE && !empty($message)) {
-            echo "<h1>Erreur 404</h1><p>{$message}</p>";
+        
+        // Inclure la page 404 stylisée
+        if (file_exists(ROOT_PATH . '/404.php')) {
+            include ROOT_PATH . '/404.php';
         } else {
-            require_once VIEWS_PATH . 'layouts/404.php';
+            // Fallback si le fichier n'existe pas
+            echo '<!DOCTYPE html><html><head><title>404</title></head><body>';
+            echo '<h1>Page non trouvée</h1>';
+            if (DEBUG_MODE && !empty($message)) {
+                echo "<p>{$message}</p>";
+            }
+            echo '</body></html>';
         }
         exit;
     }

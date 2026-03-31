@@ -32,8 +32,8 @@
     <link rel="icon" type="image/png" href="<?= SITE_URL ?>/public/images/logo.png">
     <link rel="apple-touch-icon" href="<?= SITE_URL ?>/public/images/logo.png">
     
-    <!-- CSS -->
-    <link rel="stylesheet" href="<?= SITE_URL ?>/public/css/style.css?v=<?= time() ?>">
+    <!-- CSS Minifié -->
+    <link rel="stylesheet" href="<?= SITE_URL ?>/public/css/style.min.css?v=<?= filemtime(ROOT_PATH . '/public/css/style.min.css') ?>">
 </head>
 <body>
     <!-- Header -->

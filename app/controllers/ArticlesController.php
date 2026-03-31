@@ -57,11 +57,15 @@ class ArticlesController extends Controller
         $mediaModel = $this->model('Media');
         $image = $mediaModel->getMainByArticle($article['id']);
         
+        // Récupérer les articles récents pour la sidebar
+        $recentArticles = $this->articleModel->getPublished(5);
+        
         $data = [
             'pageTitle' => $article['title'] . ' - ' . SITE_NAME,
             'metaDescription' => substr(strip_tags($article['content']), 0, 160),
             'article' => $article,
             'image' => $image,
+            'recentArticles' => $recentArticles,
             'categories' => $this->categoryModel->getActive()
         ];
         
