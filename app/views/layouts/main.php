@@ -32,38 +32,42 @@
     <link rel="icon" type="image/png" href="<?= SITE_URL ?>/public/images/logo.png">
     <link rel="apple-touch-icon" href="<?= SITE_URL ?>/public/images/logo.png">
     
-    <!-- CSS Minifié -->
-    <link rel="stylesheet" href="<?= SITE_URL ?>/public/css/style.min.css?v=<?= filemtime(ROOT_PATH . '/public/css/style.min.css') ?>">
+    <!-- Critical CSS (inline pour rendu rapide) -->
+    <style><?php include ROOT_PATH . '/public/css/critical.css'; ?></style>
+    
+    <!-- CSS complet chargé de façon asynchrone -->
+    <link rel="preload" href="<?= SITE_URL ?>/public/css/style.min.css?v=<?= filemtime(ROOT_PATH . '/public/css/style.min.css') ?>" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="<?= SITE_URL ?>/public/css/style.min.css"></noscript>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <a href="<?= SITE_URL ?>" class="logo">
+                <a href="<?= UrlHelper::homeUrl() ?>" class="logo">
                     <h1><?= SITE_NAME ?></h1>
                 </a>
                 
-                <nav class="main-nav">
+                <nav class="main-nav" role="navigation" aria-label="Navigation principale">
                     <ul>
-                        <li><a href="<?= SITE_URL ?>">Accueil</a></li>
-                        <li><a href="<?= SITE_URL ?>/articles">Actualités</a></li>
-                        <li><a href="<?= SITE_URL ?>/home/about">À propos</a></li>
-                        <li><a href="<?= SITE_URL ?>/home/contact">Contact</a></li>
+                        <li><a href="<?= UrlHelper::homeUrl() ?>">Accueil</a></li>
+                        <li><a href="<?= UrlHelper::actualitesUrl() ?>">Actualités</a></li>
+                        <li><a href="<?= UrlHelper::aboutUrl() ?>">À propos</a></li>
+                        <li><a href="<?= UrlHelper::contactUrl() ?>">Contact</a></li>
                     </ul>
                 </nav>
                 
                 <!-- Formulaire de recherche -->
-                <form action="<?= SITE_URL ?>/articles/search" method="GET" class="search-form">
-                    <input type="text" name="q" placeholder="Rechercher..." required>
-                    <button type="submit">🔍</button>
+                <form action="<?= UrlHelper::searchUrl() ?>" method="GET" class="search-form" role="search">
+                    <input type="text" name="q" placeholder="Rechercher..." required aria-label="Rechercher un article">
+                    <button type="submit" aria-label="Lancer la recherche">🔍</button>
                 </form>
             </div>
         </div>
     </header>
     
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" id="main-content">
         <div class="container">
             <?php 
             if (isset($content)) {
@@ -77,7 +81,7 @@
     </main>
     
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" role="contentinfo">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
@@ -88,10 +92,10 @@
                 <div class="footer-section">
                     <h3>Liens rapides</h3>
                     <ul>
-                        <li><a href="<?= SITE_URL ?>">Accueil</a></li>
-                        <li><a href="<?= SITE_URL ?>/articles">Actualités</a></li>
-                        <li><a href="<?= SITE_URL ?>/home/about">À propos</a></li>
-                        <li><a href="<?= SITE_URL ?>/home/contact">Contact</a></li>
+                        <li><a href="<?= UrlHelper::homeUrl() ?>">Accueil</a></li>
+                        <li><a href="<?= UrlHelper::actualitesUrl() ?>">Actualités</a></li>
+                        <li><a href="<?= UrlHelper::aboutUrl() ?>">À propos</a></li>
+                        <li><a href="<?= UrlHelper::contactUrl() ?>">Contact</a></li>
                     </ul>
                 </div>
                 
@@ -100,7 +104,7 @@
                     <ul>
                         <?php if (isset($categories)): ?>
                             <?php foreach ($categories as $cat): ?>
-                                <li><a href="<?= SITE_URL ?>/articles/category/<?= $cat['id'] ?>"><?= htmlspecialchars($cat['libelle']) ?></a></li>
+                                <li><a href="<?= UrlHelper::categoryUrl($cat) ?>"><?= htmlspecialchars($cat['libelle']) ?></a></li>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </ul>
@@ -113,7 +117,10 @@
         </div>
     </footer>
     
-    <!-- JavaScript -->
-    <script src="<?= SITE_URL ?>/public/js/main.js"></script>
+    <!-- Lien d'évitement pour accessibilité clavier -->
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    
+    <!-- JavaScript chargé de façon asynchrone (non-bloquant) -->
+    <script src="<?= SITE_URL ?>/public/js/main.js" defer></script>
 </body>
 </html>

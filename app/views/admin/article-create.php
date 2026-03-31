@@ -6,6 +6,9 @@
     <title><?= $pageTitle ?? 'Créer un article' ?> - Administration</title>
     <link rel="stylesheet" href="<?= SITE_URL ?>/public/css/admin.min.css">
     <link rel="icon" type="image/png" href="<?= SITE_URL ?>/public/images/logo.png">
+    <!-- DNS Prefetch pour CDN -->
+    <link rel="dns-prefetch" href="//cdn.tiny.cloud">
+    <link rel="preconnect" href="https://cdn.tiny.cloud" crossorigin>
     <!-- TinyMCE CDN -->
     <script src="https://cdn.tiny.cloud/1/auubzeaa3lmb3ainmfq1goiel3mrkh4wiw1sdmqma0vty65n/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <script>

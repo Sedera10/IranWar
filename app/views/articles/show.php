@@ -1,8 +1,16 @@
+<?php 
+// Préparer la catégorie pour l'URL
+$articleCategory = null;
+if (!empty($article['category_id']) && !empty($article['category_name'])) {
+    $articleCategory = ['id' => $article['category_id'], 'libelle' => $article['category_name']];
+}
+$currentArticleUrl = UrlHelper::articleUrl($article, $articleCategory);
+?>
 <div class="article-page">
     <article class="article-single">
         <header class="article-header">
             <?php if (!empty($article['category_name'])): ?>
-                <a href="<?= SITE_URL ?>/articles/category/<?= $article['category_id'] ?>" class="article-category-badge">
+                <a href="<?= UrlHelper::categoryUrl(['id' => $article['category_id'], 'libelle' => $article['category_name']]) ?>" class="article-category-badge">
                     <?= htmlspecialchars($article['category_name']) ?>
                 </a>
             <?php endif; ?>
@@ -32,15 +40,15 @@
         <footer class="article-footer">
             <div class="share-buttons">
                 <span>Partager cet article :</span>
-                <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode(SITE_URL . '/articles/show/' . $article['id']) ?>" 
+                <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode($currentArticleUrl) ?>" 
                    target="_blank" rel="noopener" class="share-btn facebook">
                     📘 Facebook
                 </a>
-                <a href="https://twitter.com/intent/tweet?url=<?= urlencode(SITE_URL . '/articles/show/' . $article['id']) ?>&text=<?= urlencode($article['title']) ?>" 
+                <a href="https://twitter.com/intent/tweet?url=<?= urlencode($currentArticleUrl) ?>&text=<?= urlencode($article['title']) ?>" 
                    target="_blank" rel="noopener" class="share-btn twitter">
                     🐦 Twitter
                 </a>
-                <a href="https://wa.me/?text=<?= urlencode($article['title'] . ' - ' . SITE_URL . '/articles/show/' . $article['id']) ?>" 
+                <a href="https://wa.me/?text=<?= urlencode($article['title'] . ' - ' . $currentArticleUrl) ?>" 
                    target="_blank" rel="noopener" class="share-btn whatsapp">
                     💬 WhatsApp
                 </a>
@@ -56,8 +64,14 @@
                 <ul class="recent-articles-list">
                     <?php foreach ($recentArticles as $recent): ?>
                         <?php if ($recent['id'] != $article['id']): ?>
+                            <?php 
+                            $recentCategory = null;
+                            if (!empty($recent['category_id']) && !empty($recent['category_name'])) {
+                                $recentCategory = ['id' => $recent['category_id'], 'libelle' => $recent['category_name']];
+                            }
+                            ?>
                             <li>
-                                <a href="<?= SITE_URL ?>/articles/show/<?= $recent['id'] ?>">
+                                <a href="<?= UrlHelper::articleUrl($recent, $recentCategory) ?>">
                                     <?= htmlspecialchars($recent['title']) ?>
                                 </a>
                                 <small><?= date('d/m/Y', strtotime($recent['published_at'] ?? $recent['created_at'])) ?></small>
@@ -74,7 +88,7 @@
                 <ul class="categories-widget">
                     <?php foreach ($categories as $cat): ?>
                         <li>
-                            <a href="<?= SITE_URL ?>/articles/category/<?= $cat['id'] ?>">
+                            <a href="<?= UrlHelper::categoryUrl($cat) ?>">
                                 <?= htmlspecialchars($cat['libelle']) ?>
                             </a>
                         </li>
@@ -84,7 +98,7 @@
         </div>
         
         <div class="back-link">
-            <a href="<?= SITE_URL ?>/articles" class="btn btn-secondary">
+            <a href="<?= UrlHelper::actualitesUrl() ?>" class="btn btn-secondary">
                 ← Retour aux actualités
             </a>
         </div>

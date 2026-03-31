@@ -1,20 +1,47 @@
 /**
  * IranWar - Main JavaScript
+ * OPTIMISÉ: Chargement asynchrone et priorité aux blocs visibles
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Priorité 1: Éléments visibles (above-the-fold)
+    initCriticalFeatures();
+    
+    // Priorité 2: Éléments différés (below-the-fold)
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(initDeferredFeatures);
+    } else {
+        setTimeout(initDeferredFeatures, 200);
+    }
+});
+
+/**
+ * Fonctionnalités critiques (chargées immédiatement)
+ */
+function initCriticalFeatures() {
     // Mobile menu toggle
     initMobileMenu();
     
+    // Lazy loading images (critique pour performance)
+    initLazyLoading();
+}
+
+/**
+ * Fonctionnalités différées (chargées après le rendu initial)
+ */
+function initDeferredFeatures() {
     // Smooth scroll
     initSmoothScroll();
     
     // Form validation
     initFormValidation();
     
-    // Lazy loading images
-    initLazyLoading();
-});
+    // Back to top button
+    initBackToTop();
+    
+    // Préchargement des liens au survol
+    initLinkPrefetch();
+}
 
 /**
  * Mobile Menu
@@ -182,4 +209,56 @@ function initBackToTop() {
 }
 
 // Initialize back to top
-initBackToTop();
+// Déjà appelé dans initDeferredFeatures()
+
+/**
+ * Préchargement des liens au survol (optimisation navigation)
+ */
+function initLinkPrefetch() {
+    // Ne précharger que sur les connexions rapides
+    if ('connection' in navigator) {
+        const conn = navigator.connection;
+        if (conn.saveData || conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g') {
+            return; // Ne pas précharger sur connexions lentes
+        }
+    }
+    
+    const links = document.querySelectorAll('a[href^="/"], a[href^="' + window.location.origin + '"]');
+    
+    links.forEach(link => {
+        let prefetched = false;
+        
+        link.addEventListener('mouseenter', function() {
+            if (!prefetched && this.href) {
+                const prefetchLink = document.createElement('link');
+                prefetchLink.rel = 'prefetch';
+                prefetchLink.href = this.href;
+                document.head.appendChild(prefetchLink);
+                prefetched = true;
+            }
+        }, { once: true });
+    });
+}
+
+/**
+ * Intersection Observer pour charger les sections au scroll
+ */
+function initSectionObserver() {
+    const sections = document.querySelectorAll('.lazy-section');
+    
+    if ('IntersectionObserver' in window && sections.length > 0) {
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('loaded');
+                    sectionObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            rootMargin: '50px 0px',
+            threshold: 0.1
+        });
+        
+        sections.forEach(section => sectionObserver.observe(section));
+    }
+}
